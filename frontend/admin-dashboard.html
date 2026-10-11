@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard & Audit Overview — NourishNet</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <!-- Demo Switcher -->
+  <div id="demoQuickSwitcher"></div>
+
+  <!-- Header -->
+  <header class="site-navbar">
+    <div class="navbar-inner">
+      <a href="index.html" class="brand-link">
+        <div class="brand-icon">🌱</div>
+        <div class="brand-text">
+          <h1>NourishNet</h1>
+          <span>Administrative Control Panel</span>
+        </div>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="admin-dashboard.html" class="nav-link active">Admin Overview</a></li>
+        <li><a href="donations.html" class="nav-link">Donations</a></li>
+        <li><a href="deliveries.html" class="nav-link">Deliveries</a></li>
+        <li><a href="route.html" class="nav-link">Route Calculator</a></li>
+      </ul>
+
+      <div class="nav-actions" id="navUserControls"></div>
+    </div>
+  </header>
+
+  <main class="dashboard-wrapper">
+    <div class="dashboard-header">
+      <div class="dashboard-title-area">
+        <h2>👑 System Administration & Impact Analytics</h2>
+        <p>Monitor platform participants, donation lifecycles, and circular waste diversion.</p>
+      </div>
+      <div class="dashboard-actions">
+        <span class="badge badge-available">Demo Data Mode</span>
+        <button onclick="loadAdminDashboard()" class="btn btn-secondary btn-sm">Refresh System Data 🔄</button>
+      </div>
+    </div>
+
+    <!-- 8 KPI Metrics Grid -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-card-header">
+          <span class="kpi-card-title">Participating Donors</span>
+          <div class="kpi-icon-pill">🍲</div>
+        </div>
+        <div class="kpi-value"><span id="admTotalDonors">0</span></div>
+        <div class="kpi-desc">Verified restaurants, hotels & campuses</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-card-header">
+          <span class="kpi-card-title">Recipient NGOs</span>
+          <div class="kpi-icon-pill" style="background:#e3f2fd;color:#1565c0;">🤝</div>
+        </div>
+        <div class="kpi-value"><span id="admTotalRecipients">0</span></div>
+        <div class="kpi-desc">Shelters, ashrams & community pantries</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-card-header">
+          <span class="kpi-card-title">Active Volunteers</span>
+          <div class="kpi-icon-pill" style="background:#fef3c7;color:#b45309;">🚚</div>
+        </div>
+        <div class="kpi-value"><span id="admRegisteredVolunteers">0</span></div>
+        <div class="kpi-desc">Self-registered volunteer drivers</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-card-header">
+          <span class="kpi-card-title">Available Food Batches</span>
+          <div class="kpi-icon-pill" style="background:#e8f5e9;color:#1e7e34;">🟢</div>
+        </div>
+        <div class="kpi-value"><span id="admAvailableBatches">0</span></div>
+        <div class="kpi-desc">Unclaimed or partial available batches</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-card-header">
+          <span class="kpi-card-title">Allocated Claims</span>
+          <div class="kpi-icon-pill">📦</div>
+        </div>
+        <div class="kpi-value"><span id="admAllocatedDonations">0</span></div>
+        <div class="kpi-desc">Total matched food allocations</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-card-header">
+          <span class="kpi-card-title">Completed Deliveries</span>
+          <div class="kpi-icon-pill" style="background:#ede7f6;color:#5e35b1;">✅</div>
+        </div>
+        <div class="kpi-value"><span id="admCompletedDeliveries">0</span></div>
+        <div class="kpi-desc">Verified with recipient OTP token</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-card-header">
+          <span class="kpi-card-title">Total Food Redistributed</span>
+          <div class="kpi-icon-pill" style="background:#d8f3dc;color:#1b4332;">🌱</div>
+        </div>
+        <div class="kpi-value"><span id="admTotalRedistributedKg">0</span><span class="kpi-unit">kg</span></div>
+        <div class="kpi-desc">Successfully delivered for consumption</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-card-header">
+          <span class="kpi-card-title">Food Waste Diverted</span>
+          <div class="kpi-icon-pill" style="background:#fff3e0;color:#e65100;">♻️</div>
+        </div>
+        <div class="kpi-value"><span id="admTotalWasteKg">0</span><span class="kpi-unit">kg</span></div>
+        <div class="kpi-desc">Diverted to composting & biogas</div>
+      </div>
+    </div>
+
+    <!-- Admin Tabs: Donations, Deliveries, Users, Waste -->
+    <div style="margin-bottom:1.5rem;display:flex;gap:0.75rem;border-bottom:1px solid var(--border-subtle);padding-bottom:0.75rem;overflow-x:auto;">
+      <button class="btn btn-secondary btn-sm" onclick="switchAdminSubtab('batches')" id="tabBtnBatches">📦 Food Batches</button>
+      <button class="btn btn-outline btn-sm" onclick="switchAdminSubtab('deliveries')" id="tabBtnDeliveries">🚚 Deliveries</button>
+      <button class="btn btn-outline btn-sm" onclick="switchAdminSubtab('users')" id="tabBtnUsers">👥 Registered Users</button>
+      <button class="btn btn-outline btn-sm" onclick="switchAdminSubtab('waste')" id="tabBtnWaste">♻️ Waste Records</button>
+    </div>
+
+    <!-- Subtab 1: Food Batches -->
+    <div id="subtabBatches" class="card" style="margin-bottom:2rem;">
+      <div class="card-header">
+        <h3 class="card-title">All Food Batches in Platform</h3>
+        <select id="adminBatchStatusFilter" class="filter-select" onchange="filterAdminBatches()">
+          <option value="">All Statuses</option>
+          <option value="AVAILABLE">AVAILABLE</option>
+          <option value="PARTIALLY_ALLOCATED">PARTIALLY_ALLOCATED</option>
+          <option value="FULLY_ALLOCATED">FULLY_ALLOCATED</option>
+          <option value="EXPIRED">EXPIRED</option>
+          <option value="CANCELLED">CANCELLED</option>
+        </select>
+      </div>
+
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Food Item</th>
+              <th>Donor</th>
+              <th>Category</th>
+              <th>Qty Available / Original</th>
+              <th>Status</th>
+              <th>Consume Before</th>
+            </tr>
+          </thead>
+          <tbody id="adminBatchesTbody">
+            <tr><td colspan="6" style="text-align:center;padding:2rem;">Loading batches...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Subtab 2: Deliveries -->
+    <div id="subtabDeliveries" class="card" style="display:none;margin-bottom:2rem;">
+      <div class="card-header">
+        <h3 class="card-title">All Deliveries & Route Logs</h3>
+      </div>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Delivery ID</th>
+              <th>Food Item</th>
+              <th>Donor ➔ Recipient</th>
+              <th>Volunteer Driver</th>
+              <th>Route Dist (Dijkstra)</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="adminDeliveriesTbody">
+            <tr><td colspan="6" style="text-align:center;padding:2rem;">Loading deliveries...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Subtab 3: Users -->
+    <div id="subtabUsers" class="card" style="display:none;margin-bottom:2rem;">
+      <div class="card-header">
+        <h3 class="card-title">Platform Participants (Donors, Recipients, Volunteers)</h3>
+      </div>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Organization</th>
+              <th>Contact Phone</th>
+              <th>Address</th>
+            </tr>
+          </thead>
+          <tbody id="adminUsersTbody">
+            <tr><td colspan="6" style="text-align:center;padding:2rem;">Loading users...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Subtab 4: Food Waste -->
+    <div id="subtabWaste" class="card" style="display:none;margin-bottom:2rem;">
+      <div class="card-header">
+        <h3 class="card-title">Food Waste & Safe Recovery Records</h3>
+        <span style="font-size:0.8rem;color:var(--text-muted);">Composting, Biogas & Organic Diversion</span>
+      </div>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Food Item</th>
+              <th>Quantity Diverted</th>
+              <th>Reason for Spoilage</th>
+              <th>Recovery Category</th>
+              <th>Status</th>
+              <th>Logged Time</th>
+            </tr>
+          </thead>
+          <tbody id="adminWasteTbody">
+            <tr><td colspan="6" style="text-align:center;padding:2rem;">Loading waste logs...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    let allAdminBatches = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = Auth.getUser();
+      if (!user || user.role !== 'ADMIN') {
+        showToast('Auto-signing in as Administrator for demo inspection...', false);
+        await Auth.quickLoginAs('ADMIN');
+      }
+      loadAdminDashboard();
+    });
+
+    async function loadAdminDashboard() {
+      // 1. Load summary
+      try {
+        const sumRes = await API.getDashboardSummary();
+        if (sumRes.data) {
+          const s = sumRes.data;
+          document.getElementById('admTotalDonors').textContent = s.totalDonors;
+          document.getElementById('admTotalRecipients').textContent = s.totalRecipients;
+          document.getElementById('admRegisteredVolunteers').textContent = s.registeredVolunteers;
+          document.getElementById('admAvailableBatches').textContent = s.availableFoodBatches;
+          document.getElementById('admAllocatedDonations').textContent = s.allocatedDonations;
+          document.getElementById('admCompletedDeliveries').textContent = s.completedDeliveries;
+          document.getElementById('admTotalRedistributedKg').textContent = s.totalFoodRedistributedKg;
+          document.getElementById('admTotalWasteKg').textContent = s.totalFoodWasteKg;
+        }
+      } catch (e) {
+        console.error('Admin summary error:', e);
+      }
+
+      // 2. Load all batches
+      API.getDonations().then(res => {
+        allAdminBatches = res.data || [];
+        filterAdminBatches();
+      }).catch(() => {});
+
+      // 3. Load all deliveries
+      API.getAllDeliveries().then(res => {
+        const list = res.data || [];
+        document.getElementById('adminDeliveriesTbody').innerHTML = list.map(d => `
+          <tr>
+            <td style="font-family:monospace;font-size:0.8rem;">#${d.id.substring(0, 8)}</td>
+            <td><strong>${d.foodName}</strong> (${d.quantity} ${d.unit})</td>
+            <td>${d.donorName} ➔ ${d.recipientName}</td>
+            <td>${d.volunteerName ? `🚚 ${d.volunteerName}` : '—'}</td>
+            <td><strong>${d.routeDistanceKm} km</strong></td>
+            <td><span class="badge ${d.status === 'DELIVERED' ? 'badge-delivered' : 'badge-assigned'}">${d.status}</span></td>
+          </tr>
+        `).join('');
+      }).catch(() => {});
+
+      // 4. Load all users
+      API.getAdminUsers().then(res => {
+        const users = res.data || [];
+        document.getElementById('adminUsersTbody').innerHTML = users.map(u => `
+          <tr>
+            <td><strong>${u.name}</strong></td>
+            <td>${u.email}</td>
+            <td><span class="badge ${u.role === 'ADMIN' ? 'badge-delivered' : u.role === 'DONOR' ? 'badge-available' : 'badge-partially-allocated'}">${u.role}</span></td>
+            <td>${u.organization || '—'}</td>
+            <td>${u.phone || '—'}</td>
+            <td style="font-size:0.82rem;color:var(--text-muted);">${u.address || '—'}</td>
+          </tr>
+        `).join('');
+      }).catch(() => {});
+
+      // 5. Load waste records
+      API.getAllWasteRecords().then(res => {
+        const waste = res.data || [];
+        document.getElementById('adminWasteTbody').innerHTML = waste.map(w => `
+          <tr>
+            <td><strong>${w.foodName}</strong></td>
+            <td><strong>${w.quantity} ${w.unit}</strong></td>
+            <td style="font-size:0.82rem;color:var(--text-muted);">${w.reason}</td>
+            <td><span class="badge badge-assigned">${w.disposalCategory}</span></td>
+            <td>${w.status}</td>
+            <td style="font-size:0.82rem;color:var(--text-muted);">${new Date(w.recordedAt).toLocaleString()}</td>
+          </tr>
+        `).join('');
+      }).catch(() => {});
+    }
+
+    function filterAdminBatches() {
+      const statusFilter = document.getElementById('adminBatchStatusFilter')?.value || '';
+      const filtered = statusFilter 
+        ? allAdminBatches.filter(b => b.status === statusFilter) 
+        : allAdminBatches;
+
+      const tbody = document.getElementById('adminBatchesTbody');
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;">No batches found.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(b => `
+        <tr>
+          <td><strong>${b.foodName}</strong></td>
+          <td>${b.donorName}</td>
+          <td><span style="font-size:0.8rem;text-transform:uppercase;">${b.category}</span></td>
+          <td><strong>${b.remainingQuantity}</strong> / ${b.originalQuantity} ${b.unit}</td>
+          <td><span class="badge ${b.status === 'AVAILABLE' ? 'badge-available' : b.status === 'FULLY_ALLOCATED' ? 'badge-fully-allocated' : 'badge-expired'}">${b.status}</span></td>
+          <td>${new Date(b.consumeBefore).toLocaleString()}</td>
+        </tr>
+      `).join('');
+    }
+
+    function switchAdminSubtab(tabName) {
+      document.getElementById('subtabBatches').style.display = tabName === 'batches' ? 'block' : 'none';
+      document.getElementById('subtabDeliveries').style.display = tabName === 'deliveries' ? 'block' : 'none';
+      document.getElementById('subtabUsers').style.display = tabName === 'users' ? 'block' : 'none';
+      document.getElementById('subtabWaste').style.display = tabName === 'waste' ? 'block' : 'none';
+
+      document.getElementById('tabBtnBatches').className = tabName === 'batches' ? 'btn btn-secondary btn-sm' : 'btn btn-outline btn-sm';
+      document.getElementById('tabBtnDeliveries').className = tabName === 'deliveries' ? 'btn btn-secondary btn-sm' : 'btn btn-outline btn-sm';
+      document.getElementById('tabBtnUsers').className = tabName === 'users' ? 'btn btn-secondary btn-sm' : 'btn btn-outline btn-sm';
+      document.getElementById('tabBtnWaste').className = tabName === 'waste' ? 'btn btn-secondary btn-sm' : 'btn btn-outline btn-sm';
+    }
+  </script>
+</body>
+</html>

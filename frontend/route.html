@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dijkstra Shortest Route Calculator — NourishNet</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <!-- Demo Switcher -->
+  <div id="demoQuickSwitcher"></div>
+
+  <!-- Header -->
+  <header class="site-navbar">
+    <div class="navbar-inner">
+      <a href="index.html" class="brand-link">
+        <div class="brand-icon">🌱</div>
+        <div class="brand-text">
+          <h1>NourishNet</h1>
+          <span>Dijkstra Road Routing</span>
+        </div>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="donations.html" class="nav-link">Find Food</a></li>
+        <li><a href="deliveries.html" class="nav-link">Deliveries</a></li>
+        <li><a href="route.html" class="nav-link active">Route Calculator</a></li>
+      </ul>
+
+      <div class="nav-actions" id="navUserControls"></div>
+    </div>
+  </header>
+
+  <main class="dashboard-wrapper">
+    <div class="dashboard-header">
+      <div class="dashboard-title-area">
+        <h2>🗺️ Dijkstra Shortest-Path Road Routing Engine</h2>
+        <p>Weighted graph road network algorithm executed natively on the Java Spring Boot backend.</p>
+      </div>
+      <div>
+        <span class="badge badge-available">SAMPLE ROAD NETWORK DATA</span>
+      </div>
+    </div>
+
+    <!-- Route Selector Controls -->
+    <div class="card" style="margin-bottom:2rem;background:linear-gradient(135deg, #ffffff, var(--color-pastel-tint));">
+      <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:1.25rem;align-items:flex-end;">
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label" for="routeSourceSelect">🟢 Source Road Junction / Pickup Hub</label>
+          <select id="routeSourceSelect" class="form-control" style="font-weight:600;color:var(--color-forest-dark);">
+            <!-- Populated via API -->
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label" for="routeDestSelect">🎯 Destination Junction / Dropoff Point</label>
+          <select id="routeDestSelect" class="form-control" style="font-weight:600;color:var(--color-forest-dark);">
+            <!-- Populated via API -->
+          </select>
+        </div>
+
+        <div>
+          <button id="calcRouteBtn" onclick="RouteApp.calculateRoute()" class="btn btn-primary" style="height:44px;white-space:nowrap;">
+            Run Dijkstra Algorithm 🗺️
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2D Interactive Canvas Graph Visualizer -->
+    <div class="route-visualizer-container">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h3 style="font-size:1.15rem;color:var(--color-forest-dark);display:flex;align-items:center;gap:0.5rem;">
+          <span>🌐</span> Metro Road Network Graph (2D Representation)
+        </h3>
+        <span style="font-size:0.8rem;color:var(--text-muted);">Green lines highlight Dijkstra shortest path</span>
+      </div>
+
+      <div class="graph-canvas-box">
+        <canvas id="roadGraphCanvas"></canvas>
+      </div>
+    </div>
+
+    <!-- Calculated Result Output Card -->
+    <div id="routeResultBox" style="margin-bottom:2rem;">
+      <!-- Populated on calculation -->
+    </div>
+
+    <!-- Educational Explanation for Computer Science Viva / Examination -->
+    <div class="card" style="background:#ffffff;border:1px solid var(--border-subtle);">
+      <h3 style="font-size:1.2rem;color:var(--color-forest-dark);margin-bottom:0.75rem;">
+        🎓 Algorithm & Implementation Details (B.E. Computer Science)
+      </h3>
+      <div style="font-size:0.92rem;color:var(--text-body);line-height:1.7;">
+        <p style="margin-bottom:0.75rem;">
+          <strong>Data Structure:</strong> The road network is modeled as an adjacency list graph <code>G = (V, E)</code> where vertices <code>V</code> represent junctions and weighted edges <code>E</code> represent bidirectional roads with distance weights <code>w(u, v) &ge; 0</code> in kilometers.
+        </p>
+        <p style="margin-bottom:0.75rem;">
+          <strong>Algorithm Complexity:</strong> Dijkstra's algorithm uses Java's <code>PriorityQueue&lt;NodeDistance&gt;</code> (Min-Heap), achieving an optimal time complexity of <code>O((|V| + |E|) log |V|)</code>.
+        </p>
+        <p>
+          <strong>Haversine vs Dijkstra:</strong> NourishNet strictly distinguishes straight-line geodesic distance (Haversine formula used for the 15-km transport policy rule) from real road routing (Dijkstra algorithm on the road graph), ensuring authentic transit distance calculations.
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/route.js"></script>
+</body>
+</html>

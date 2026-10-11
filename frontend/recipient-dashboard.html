@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recipient Dashboard — NourishNet</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <!-- Demo Switcher -->
+  <div id="demoQuickSwitcher"></div>
+
+  <!-- Header -->
+  <header class="site-navbar">
+    <div class="navbar-inner">
+      <a href="index.html" class="brand-link">
+        <div class="brand-icon">🌱</div>
+        <div class="brand-text">
+          <h1>NourishNet</h1>
+          <span>Recipient Portal</span>
+        </div>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="recipient-dashboard.html" class="nav-link active">Recipient Hub</a></li>
+        <li><a href="donations.html" class="nav-link">Claim Food</a></li>
+        <li><a href="deliveries.html" class="nav-link">Active Deliveries</a></li>
+        <li><a href="route.html" class="nav-link">Route Calculator</a></li>
+      </ul>
+
+      <div class="nav-actions" id="navUserControls"></div>
+    </div>
+  </header>
+
+  <main class="dashboard-wrapper">
+    <div class="dashboard-header">
+      <div class="dashboard-title-area">
+        <h2>🤝 Recipient Organization Hub</h2>
+        <p>Browse available food batches, track claimed deliveries, and manage food requests.</p>
+      </div>
+      <div class="dashboard-actions">
+        <a href="donations.html" class="btn btn-primary">
+          <span>🔍</span> Browse Available Food
+        </a>
+        <button onclick="openPostDemandModal()" class="btn btn-secondary">
+          <span>📢</span> Post Food Demand
+        </button>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-card-header">
+          <span class="kpi-card-title">Available in Network</span>
+          <div class="kpi-icon-pill" style="background:#e8f5e9;color:#1e7e34;">🟢</div>
+        </div>
+        <div class="kpi-value"><span id="kpiNetAvailable">0</span></div>
+        <div class="kpi-desc">Fresh batches ready to claim</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-card-header">
+          <span class="kpi-card-title">My Claimed Allocations</span>
+          <div class="kpi-icon-pill" style="background:#e3f2fd;color:#1565c0;">📦</div>
+        </div>
+        <div class="kpi-value"><span id="kpiMyAllocations">0</span></div>
+        <div class="kpi-desc">Total allocations requested</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-card-header">
+          <span class="kpi-card-title">Active En Route</span>
+          <div class="kpi-icon-pill" style="background:#fff8e1;color:#b78103;">🚚</div>
+        </div>
+        <div class="kpi-value"><span id="kpiActiveDeliveries">0</span></div>
+        <div class="kpi-desc">Assigned to volunteer drivers</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-card-header">
+          <span class="kpi-card-title">Successfully Received</span>
+          <div class="kpi-icon-pill" style="background:#ede7f6;color:#5e35b1;">✅</div>
+        </div>
+        <div class="kpi-value"><span id="kpiCompletedReceived">0</span></div>
+        <div class="kpi-desc">Food handovers verified</div>
+      </div>
+    </div>
+
+    <!-- Active Inbound Deliveries with Handover OTPs -->
+    <div class="card" style="margin-bottom:2.25rem;">
+      <div class="card-header">
+        <h3 class="card-title">🔐 Inbound Deliveries & Handover Verification OTPs</h3>
+        <span style="font-size:0.8rem;color:var(--text-muted);">Share OTP with the volunteer driver upon food arrival</span>
+      </div>
+
+      <div id="inboundDeliveriesList">
+        <div style="text-align:center;padding:2rem;color:var(--text-muted);">Loading inbound deliveries...</div>
+      </div>
+    </div>
+
+    <!-- My Claimed Allocations Table -->
+    <div class="card" style="margin-bottom:2.25rem;">
+      <div class="card-header">
+        <h3 class="card-title">📋 My Allocation Claims History</h3>
+        <button onclick="loadRecipientData()" class="btn btn-secondary btn-sm">Refresh 🔄</button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Food Item</th>
+              <th>Donor</th>
+              <th>Quantity Claimed</th>
+              <th>Transport Policy (Haversine)</th>
+              <th>Status</th>
+              <th>Claim Date</th>
+            </tr>
+          </thead>
+          <tbody id="myAllocationsTableBody">
+            <tr><td colspan="6" style="text-align:center;padding:2rem;">Loading claims history...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- My Posted Demands -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">📢 My Organization's Food Demand Requests</h3>
+        <button onclick="openPostDemandModal()" class="btn btn-outline btn-sm">+ Post New Demand</button>
+      </div>
+      <div id="myDemandsList" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1rem;">
+        <div style="color:var(--text-muted);font-size:0.88rem;">Loading demands...</div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Post Food Demand Modal -->
+  <div class="modal-overlay" id="postDemandModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Publish Food Demand on Public Board</h3>
+        <button class="modal-close-btn" onclick="closePostDemandModal()">&times;</button>
+      </div>
+
+      <form id="postDemandForm">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="demandCategory">Food Category Needed *</label>
+              <select id="demandCategory" class="form-control" required>
+                <option value="COOKED_MEALS">Cooked Meals</option>
+                <option value="PACKAGED_GOODS">Packaged Goods</option>
+                <option value="FRESH_PRODUCE">Fresh Produce</option>
+                <option value="BAKERY_ITEMS">Bakery Items</option>
+                <option value="GRAINS_AND_STAPLES">Grains & Staples</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="demandQty">Quantity Needed *</label>
+              <div style="display:flex;gap:0.5rem;">
+                <input type="number" id="demandQty" class="form-control" min="1" step="1" placeholder="50" required style="flex:2;">
+                <select id="demandUnit" class="form-control" required style="flex:1;">
+                  <option value="servings">servings</option>
+                  <option value="kg">kg</option>
+                  <option value="packets">packets</option>
+                  <option value="boxes">boxes</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="demandUrgency">Urgency Level *</label>
+              <select id="demandUrgency" class="form-control" required>
+                <option value="MEDIUM">Medium Urgency</option>
+                <option value="HIGH">High Urgency (Needed Today)</option>
+                <option value="CRITICAL">Critical (Immediate Hunger Relief)</option>
+                <option value="LOW">Low Urgency (Weekly Stock)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="demandLocation">Location / Area *</label>
+              <input type="text" id="demandLocation" class="form-control" placeholder="E.g., North District Community Center" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="demandNotes">Specific Requirements or Beneficiary Details</label>
+            <textarea id="demandNotes" class="form-control" rows="2" placeholder="E.g., Need 50 dinner meals for women's shelter residents by 7:30 PM."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closePostDemandModal()">Cancel</button>
+          <button type="submit" id="submitDemandBtn" class="btn btn-primary">Publish to Demand Board ➔</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = Auth.getUser();
+      if (!user) {
+        showToast('Please sign in as a food recipient organization.', true);
+        await Auth.quickLoginAs('RECIPIENT');
+      }
+      loadRecipientData();
+    });
+
+    async function loadRecipientData() {
+      const user = Auth.getUser();
+      if (!user) return;
+
+      // 1. Available in network
+      API.getDonations({ availableOnly: true }).then(res => {
+        document.getElementById('kpiNetAvailable').textContent = (res.data || []).length;
+      }).catch(() => {});
+
+      // 2. My allocations
+      try {
+        const allocRes = await API.getAllocations({ recipientId: user.id });
+        const allocations = allocRes.data || [];
+        document.getElementById('kpiMyAllocations').textContent = allocations.length;
+        renderAllocations(allocations);
+      } catch (e) {
+        console.error('Allocations error:', e);
+      }
+
+      // 3. Inbound deliveries
+      try {
+        const delivRes = await API.getAllDeliveries({ recipientId: user.id });
+        const deliveries = delivRes.data || [];
+        const active = deliveries.filter(d => d.status === 'ASSIGNED' || d.status === 'PICKED_UP');
+        const completed = deliveries.filter(d => d.status === 'DELIVERED');
+
+        document.getElementById('kpiActiveDeliveries').textContent = active.length;
+        document.getElementById('kpiCompletedReceived').textContent = completed.length;
+
+        renderInboundDeliveries(deliveries);
+      } catch (e) {
+        console.error('Deliveries error:', e);
+      }
+
+      // 4. My demands
+      loadMyDemands();
+    }
+
+    function renderInboundDeliveries(deliveries) {
+      const container = document.getElementById('inboundDeliveriesList');
+      if (deliveries.length === 0) {
+        container.innerHTML = `
+          <div style="text-align:center;padding:2rem;color:var(--text-muted);">
+            No deliveries in progress. Claim a food batch on the <a href="donations.html" style="font-weight:600;">Marketplace</a> to initiate transport!
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = deliveries.map(d => {
+        const isCompleted = d.status === 'DELIVERED';
+        const isPickedUp = d.status === 'PICKED_UP';
+
+        return `
+          <div style="background:#fff;border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:1.25rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;box-shadow:var(--shadow-sm);">
+            <div>
+              <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem;">
+                <span class="badge ${isCompleted ? 'badge-delivered' : isPickedUp ? 'badge-picked-up' : 'badge-assigned'}">
+                  ${d.status.replace('_', ' ')}
+                </span>
+                <span style="font-size:0.8rem;color:var(--text-light);font-family:monospace;">#${d.id.substring(0, 8)}</span>
+              </div>
+              <h4 style="font-size:1.15rem;color:var(--color-forest-dark);">${d.foodName} (${d.quantity} ${d.unit})</h4>
+              <div style="font-size:0.85rem;color:var(--text-muted);margin-top:0.2rem;">
+                Donor: <strong>${d.donorName}</strong> • Volunteer: <strong>${d.volunteerName || 'Pending driver'}</strong>
+              </div>
+            </div>
+
+            <!-- OTP Card for Handover Verification -->
+            <div style="background:var(--color-pastel-tint);border:2px dashed var(--color-forest-main);border-radius:var(--radius-md);padding:0.6rem 1.25rem;text-align:center;min-width:180px;">
+              <div style="font-size:0.72rem;font-weight:700;color:var(--color-forest-dark);text-transform:uppercase;">
+                Handover OTP
+              </div>
+              <div style="font-family:monospace;font-size:1.6rem;font-weight:800;letter-spacing:0.18em;color:var(--color-forest-dark);">
+                ${d.handoverOtp || '------'}
+              </div>
+              <div style="font-size:0.7rem;color:var(--text-muted);">
+                ${isCompleted ? '✅ Verified & Delivered' : 'Present to volunteer driver'}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderAllocations(allocations) {
+      const tbody = document.getElementById('myAllocationsTableBody');
+      if (allocations.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;">No claims recorded yet.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = allocations.map(a => {
+        const dateStr = new Date(a.allocatedAt).toLocaleDateString('en-US', {
+          month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+
+        return `
+          <tr>
+            <td><strong>${a.foodName}</strong></td>
+            <td>${a.donorName}</td>
+            <td><strong>${a.quantity} ${a.unit}</strong></td>
+            <td>
+              <span class="policy-badge ${a.haversineDistanceKm <= 15 ? 'policy-local' : 'policy-extended'}" style="font-size:0.75rem;">
+                ${a.haversineDistanceKm > 0 ? `${a.haversineDistanceKm} km` : 'Local'}: ${a.transportPolicy ? a.transportPolicy.split(':')[0] : 'Standard'}
+              </span>
+            </td>
+            <td><span class="badge ${a.status === 'DELIVERED' ? 'badge-delivered' : 'badge-available'}">${a.status}</span></td>
+            <td style="font-size:0.82rem;color:var(--text-muted);">${dateStr}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function loadMyDemands() {
+      const user = Auth.getUser();
+      if (!user) return;
+      const container = document.getElementById('myDemandsList');
+
+      try {
+        const res = await API.getDemandsByRecipient(user.id);
+        const demands = res.data || [];
+        if (demands.length === 0) {
+          container.innerHTML = '<div style="color:var(--text-muted);font-size:0.88rem;">No open demand requests posted by your organization.</div>';
+          return;
+        }
+
+        container.innerHTML = demands.map(d => `
+          <div style="background:#fff;border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:1rem;box-shadow:var(--shadow-sm);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.35rem;">
+              <span class="badge ${d.status === 'FULFILLED' ? 'badge-delivered' : 'badge-available'}">${d.status}</span>
+              <span style="font-size:0.78rem;font-weight:700;color:${d.urgency === 'CRITICAL' ? '#c62828' : '#b45309'};">${d.urgency}</span>
+            </div>
+            <strong style="color:var(--color-forest-dark);font-size:1rem;">${d.category.replace('_', ' ')} (${d.requiredQuantity} ${d.unit})</strong>
+            <p style="font-size:0.82rem;color:var(--text-muted);margin-top:0.35rem;">${d.notes || 'Needed by organization'}</p>
+          </div>
+        `).join('');
+      } catch (e) {
+        container.innerHTML = '<div style="color:var(--text-muted);font-size:0.88rem;">Could not load demands.</div>';
+      }
+    }
+
+    function openPostDemandModal() {
+      const user = Auth.getUser();
+      if (user && user.address) {
+        document.getElementById('demandLocation').value = user.address;
+      }
+      document.getElementById('postDemandModal').classList.add('active');
+    }
+
+    function closePostDemandModal() {
+      document.getElementById('postDemandModal').classList.remove('active');
+      document.getElementById('postDemandForm').reset();
+    }
+
+    document.getElementById('postDemandForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submitDemandBtn');
+      btn.disabled = true;
+      btn.textContent = 'Publishing...';
+
+      const demandData = {
+        category: document.getElementById('demandCategory').value,
+        requiredQuantity: parseFloat(document.getElementById('demandQty').value),
+        unit: document.getElementById('demandUnit').value,
+        urgency: document.getElementById('demandUrgency').value,
+        location: document.getElementById('demandLocation').value.trim(),
+        notes: document.getElementById('demandNotes').value.trim()
+      };
+
+      try {
+        const res = await API.createDemand(demandData);
+        if (res.success) {
+          showToast('Food demand published to public board!', false);
+          closePostDemandModal();
+          loadMyDemands();
+        }
+      } catch (err) {
+        showToast(err.message || 'Failed to post demand', true);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Publish to Demand Board ➔';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create an Account — NourishNet</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body style="display:flex;flex-direction:column;min-height:100vh;">
+
+  <!-- Header -->
+  <header class="site-navbar">
+    <div class="navbar-inner">
+      <a href="index.html" class="brand-link">
+        <div class="brand-icon">🌱</div>
+        <div class="brand-text">
+          <h1>NourishNet</h1>
+          <span>Smart Food Redistribution</span>
+        </div>
+      </a>
+      <a href="login.html" class="btn btn-outline btn-sm">Already have an account? Sign In</a>
+    </div>
+  </header>
+
+  <!-- Registration Form Container -->
+  <main style="flex:1;display:flex;align-items:center;justify-content:center;padding:2.5rem 1.5rem;">
+    <div class="card" style="width:100%;max-width:560px;padding:2.25rem;box-shadow:var(--shadow-lg);">
+      <div style="text-align:center;margin-bottom:1.75rem;">
+        <div style="font-size:2.5rem;margin-bottom:0.5rem;">🌱</div>
+        <h2 style="font-size:1.8rem;color:var(--color-forest-dark);">Join NourishNet</h2>
+        <p style="color:var(--text-muted);font-size:0.92rem;">Connect as a Food Donor, Recipient Organization, or Volunteer Driver</p>
+      </div>
+
+      <form id="registerForm">
+        <!-- Role Selection -->
+        <div class="form-group">
+          <label class="form-label" for="regRole">Select Your Role</label>
+          <select id="regRole" class="form-control" required style="font-weight:600;color:var(--color-forest-dark);">
+            <option value="DONOR">🍲 Food Donor (Restaurant, Hotel, Hostel, Institution)</option>
+            <option value="RECIPIENT">🤝 Food Recipient (Shelter, NGO, Ashram, Community Center)</option>
+            <option value="VOLUNTEER">🚚 Volunteer Driver (Transport & Delivery)</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="regName">Full Contact Name</label>
+            <input type="text" id="regName" class="form-control" placeholder="E.g., Priya Sharma" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="regEmail">Email Address</label>
+            <input type="email" id="regEmail" class="form-control" placeholder="name@organization.org" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="regPassword">Password (min 6 characters)</label>
+            <input type="password" id="regPassword" class="form-control" placeholder="••••••••" minlength="6" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="regPhone">Phone Number</label>
+            <input type="tel" id="regPhone" class="form-control" placeholder="+91 98765 43210" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="regOrg">Organization / Establishment Name</label>
+          <input type="text" id="regOrg" class="form-control" placeholder="E.g., Sunrise Care Foundation / Bistro Central">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="regAddress">Physical / Operating Address</label>
+          <textarea id="regAddress" class="form-control" rows="2" placeholder="Street address, neighborhood, landmark..." required></textarea>
+        </div>
+
+        <button type="submit" id="regSubmitBtn" class="btn btn-primary" style="width:100%;margin-top:0.75rem;">
+          Complete Registration ➔
+        </button>
+      </form>
+
+      <div style="text-align:center;margin-top:1.5rem;font-size:0.88rem;color:var(--text-muted);">
+        Already registered? <a href="login.html" style="font-weight:600;color:var(--color-forest-main);">Sign in here</a>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // Prefill role if in query params (?role=VOLUNTEER)
+    const params = new URLSearchParams(window.location.search);
+    const roleParam = params.get('role');
+    if (roleParam && document.getElementById('regRole')) {
+      document.getElementById('regRole').value = roleParam;
+    }
+
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('regSubmitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Creating account...';
+
+      const userData = {
+        name: document.getElementById('regName').value.trim(),
+        email: document.getElementById('regEmail').value.trim(),
+        password: document.getElementById('regPassword').value,
+        role: document.getElementById('regRole').value,
+        phone: document.getElementById('regPhone').value.trim(),
+        organization: document.getElementById('regOrg').value.trim(),
+        address: document.getElementById('regAddress').value.trim(),
+        latitude: 13.0827,
+        longitude: 80.2707
+      };
+
+      try {
+        const user = await Auth.register(userData);
+        setTimeout(() => {
+          Auth.redirectToDashboard(user.role);
+        }, 500);
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = 'Complete Registration ➔';
+      }
+    });
+  </script>
+</body>
+</html>

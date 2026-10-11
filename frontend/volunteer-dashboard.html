@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Volunteer Driver Hub — NourishNet</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <!-- Demo Switcher -->
+  <div id="demoQuickSwitcher"></div>
+
+  <!-- Header -->
+  <header class="site-navbar">
+    <div class="navbar-inner">
+      <a href="index.html" class="brand-link">
+        <div class="brand-icon">🌱</div>
+        <div class="brand-text">
+          <h1>NourishNet</h1>
+          <span>Volunteer Driver Hub</span>
+        </div>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="volunteer-dashboard.html" class="nav-link active">Volunteer Hub</a></li>
+        <li><a href="donations.html" class="nav-link">Marketplace</a></li>
+        <li><a href="deliveries.html" class="nav-link">Deliveries</a></li>
+        <li><a href="route.html" class="nav-link">Route Calculator</a></li>
+      </ul>
+
+      <div class="nav-actions" id="navUserControls"></div>
+    </div>
+  </header>
+
+  <main class="dashboard-wrapper">
+    <div class="dashboard-header">
+      <div class="dashboard-title-area">
+        <h2>🚚 Volunteer Driver Coordination Hub</h2>
+        <p>Coordinate food transport, inspect shortest Dijkstra road routes, and complete OTP handovers.</p>
+      </div>
+      <div class="dashboard-actions" style="display:flex;align-items:center;gap:1rem;">
+        <!-- Availability Toggle Switch -->
+        <div style="background:#ffffff;border:1px solid var(--border-subtle);border-radius:var(--radius-pill);padding:0.4rem 0.85rem;display:flex;align-items:center;gap:0.6rem;box-shadow:var(--shadow-sm);">
+          <span style="font-size:0.85rem;font-weight:600;color:var(--color-forest-dark);">Availability:</span>
+          <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer;font-size:0.85rem;font-weight:700;">
+            <input type="checkbox" id="availabilityToggle" onchange="toggleMyAvailability(this.checked)">
+            <span id="availabilityStatusLabel" style="color:#10b981;">Available for Deliveries</span>
+          </label>
+        </div>
+
+        <button onclick="openVehicleProfileModal()" class="btn btn-secondary btn-sm">
+          ⚙️ Update Vehicle Profile
+        </button>
+      </div>
+    </div>
+
+    <!-- Active In-Progress Delivery Card (if assigned) -->
+    <div id="activeDeliverySection" style="margin-bottom:2.25rem;">
+      <!-- Populated dynamically: if active delivery exists, shows route and OTP complete buttons -->
+    </div>
+
+    <!-- Vehicle & Driver Status Card -->
+    <div class="card" style="margin-bottom:2.25rem;background:linear-gradient(135deg, #ffffff, var(--color-pastel-tint));">
+      <div class="card-header">
+        <h3 class="card-title">🛵 My Registered Volunteer Vehicle</h3>
+        <span class="badge badge-available">Registered Volunteer Driver</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:1rem;">
+        <div>
+          <div style="font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;">Vehicle Type</div>
+          <div id="dispVehicleType" style="font-size:1.05rem;font-weight:700;color:var(--color-forest-dark);">Cargo Van</div>
+        </div>
+        <div>
+          <div style="font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;">Registration ID</div>
+          <div id="dispVehicleReg" style="font-size:1.05rem;font-weight:700;font-family:monospace;color:var(--color-forest-dark);">TN-01-AB-1024</div>
+        </div>
+        <div>
+          <div style="font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;">Carrying Capacity</div>
+          <div id="dispVehicleCap" style="font-size:1.05rem;font-weight:700;color:var(--color-green-emerald);">150 kg</div>
+        </div>
+        <div>
+          <div style="font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;">Completed Trips</div>
+          <div id="dispCompletedTrips" style="font-size:1.05rem;font-weight:700;color:var(--color-forest-dark);">0 Deliveries</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Available Delivery Opportunities List -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">📦 Available Delivery Requests Waiting for Drivers</h3>
+        <button onclick="loadVolunteerData()" class="btn btn-secondary btn-sm">Refresh Jobs 🔄</button>
+      </div>
+
+      <div id="availableJobsList">
+        <div style="text-align:center;padding:2.5rem;color:var(--text-muted);">
+          Loading available food redistribution delivery requests...
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Complete Delivery / OTP Modal -->
+  <div class="modal-overlay" id="otpModal">
+    <div class="modal-dialog" style="max-width:440px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Verify Food Handover</h3>
+        <button class="modal-close-btn" onclick="closeOtpModal()">&times;</button>
+      </div>
+      <form id="otpVerifyForm">
+        <div class="modal-body" style="text-align:center;">
+          <div style="font-size:2.5rem;margin-bottom:0.5rem;">🔐</div>
+          <h4 style="color:var(--color-forest-dark);margin-bottom:0.5rem;">Enter Recipient Handover OTP</h4>
+          <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1.5rem;">
+            Ask the shelter staff for their 6-digit Handover OTP to confirm that the food arrived safely.
+          </p>
+
+          <div class="form-group">
+            <input type="text" id="verifyOtpInput" class="form-control" placeholder="123456" maxlength="6" required
+                   style="font-family:monospace;font-size:1.8rem;text-align:center;letter-spacing:0.25em;font-weight:800;color:var(--color-forest-dark);">
+          </div>
+        </div>
+
+        <div class="modal-footer" style="justify-content:center;">
+          <button type="button" class="btn btn-outline" onclick="closeOtpModal()">Cancel</button>
+          <button type="submit" id="submitOtpBtn" class="btn btn-primary">Verify & Complete Delivery ✅</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Vehicle Profile Modal -->
+  <div class="modal-overlay" id="vehicleModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Update Volunteer Vehicle Profile</h3>
+        <button class="modal-close-btn" onclick="closeVehicleModal()">&times;</button>
+      </div>
+      <form id="vehicleProfileForm">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="editVehicleType">Vehicle Type *</label>
+              <select id="editVehicleType" class="form-control" required>
+                <option value="CARGO_VAN">Cargo Van</option>
+                <option value="MINI_TRUCK">Mini Truck</option>
+                <option value="CAR_SEDAN">Car (Sedan)</option>
+                <option value="CAR_SUV">Car (SUV)</option>
+                <option value="ELECTRIC_AUTO">Electric Cargo Auto</option>
+                <option value="MOTORCYCLE">Motorcycle with Carrier</option>
+                <option value="BICYCLE">Bicycle with Carrier</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="editVehicleReg">Registration Number *</label>
+              <input type="text" id="editVehicleReg" class="form-control" placeholder="TN-01-AB-1234" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="editVehicleCap">Capacity (kg) *</label>
+              <input type="number" id="editVehicleCap" class="form-control" min="1" step="0.5" placeholder="100" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="editRadius">Operating Radius (km)</label>
+              <input type="number" id="editRadius" class="form-control" min="1" value="15">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="editLocation">Current Operating Base / Area</label>
+            <input type="text" id="editLocation" class="form-control" placeholder="E.g., Central District Transport Yard" required>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeVehicleModal()">Cancel</button>
+          <button type="submit" id="saveVehicleBtn" class="btn btn-primary">Save Vehicle Details ➔</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    let myDriverProfile = null;
+    let activeDelivery = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = Auth.getUser();
+      if (!user) {
+        showToast('Please sign in as a volunteer driver.', true);
+        await Auth.quickLoginAs('VOLUNTEER');
+      }
+      loadVolunteerData();
+    });
+
+    async function loadVolunteerData() {
+      try {
+        const profileRes = await API.getMyVolunteerProfile();
+        myDriverProfile = profileRes.data;
+        updateProfileUI();
+
+        // Check if there is an active delivery for this volunteer
+        const delivRes = await API.getAllDeliveries({ volunteerId: myDriverProfile.id });
+        const myDeliveries = delivRes.data || [];
+        activeDelivery = myDeliveries.find(d => d.status === 'ASSIGNED' || d.status === 'PICKED_UP');
+        renderActiveDelivery();
+
+        // Load available pending delivery opportunities
+        loadAvailableJobs();
+      } catch (err) {
+        console.error('Volunteer load error:', err);
+      }
+    }
+
+    function updateProfileUI() {
+      if (!myDriverProfile) return;
+
+      const toggle = document.getElementById('availabilityToggle');
+      const label = document.getElementById('availabilityStatusLabel');
+      toggle.checked = myDriverProfile.available;
+      label.textContent = myDriverProfile.available ? 'Available for Deliveries' : 'Currently Unavailable';
+      label.style.color = myDriverProfile.available ? '#10b981' : '#c62828';
+
+      if (myDriverProfile.vehicle) {
+        document.getElementById('dispVehicleType').textContent = myDriverProfile.vehicle.type.replace('_', ' ');
+        document.getElementById('dispVehicleReg').textContent = myDriverProfile.vehicle.registrationNumber;
+        document.getElementById('dispVehicleCap').textContent = `${myDriverProfile.vehicle.capacityKg} kg`;
+      }
+      document.getElementById('dispCompletedTrips').textContent = `${myDriverProfile.completedDeliveriesCount} Deliveries`;
+    }
+
+    async function toggleMyAvailability(checked) {
+      try {
+        const res = await API.toggleAvailability(checked);
+        if (res.success) {
+          myDriverProfile.available = checked;
+          updateProfileUI();
+          showToast(`Availability set to: ${checked ? 'Available' : 'Unavailable'}`, false);
+        }
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    }
+
+    function renderActiveDelivery() {
+      const sec = document.getElementById('activeDeliverySection');
+      if (!activeDelivery) {
+        sec.innerHTML = '';
+        return;
+      }
+
+      const isPickedUp = activeDelivery.status === 'PICKED_UP';
+      const routeStr = activeDelivery.routeNodeIds ? activeDelivery.routeNodeIds.join(' ➔ ') : 'Direct Path';
+
+      sec.innerHTML = `
+        <div class="card" style="border:2px solid var(--color-forest-main);background:linear-gradient(145deg, #ffffff, var(--color-pastel-tint));">
+          <div class="card-header">
+            <div>
+              <span class="badge ${isPickedUp ? 'badge-picked-up' : 'badge-assigned'}">
+                Active Job: ${activeDelivery.status.replace('_', ' ')}
+              </span>
+              <h3 style="font-size:1.4rem;color:var(--color-forest-dark);margin-top:0.35rem;">
+                ${activeDelivery.foodName} (${activeDelivery.quantity} ${activeDelivery.unit})
+              </h3>
+            </div>
+            <span class="policy-badge policy-local">
+              ${activeDelivery.routeDistanceKm} km Dijkstra Route
+            </span>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:1rem;margin-bottom:1.25rem;">
+            <div style="background:#fff;padding:1rem;border-radius:var(--radius-md);border:1px solid var(--border-subtle);">
+              <strong style="color:var(--color-forest-dark);font-size:0.9rem;">📍 Pickup Location:</strong>
+              <div style="font-size:0.95rem;font-weight:600;margin-top:0.25rem;">${activeDelivery.donorName}</div>
+              <div style="font-size:0.85rem;color:var(--text-muted);">${activeDelivery.pickupAddress}</div>
+            </div>
+
+            <div style="background:#fff;padding:1rem;border-radius:var(--radius-md);border:1px solid var(--border-subtle);">
+              <strong style="color:var(--color-forest-dark);font-size:0.9rem;">🎯 Destination Dropoff:</strong>
+              <div style="font-size:0.95rem;font-weight:600;margin-top:0.25rem;">${activeDelivery.recipientName}</div>
+              <div style="font-size:0.85rem;color:var(--text-muted);">${activeDelivery.dropoffAddress}</div>
+            </div>
+          </div>
+
+          <!-- Dijkstra Road Routing details -->
+          <div style="background:#fff;border-radius:var(--radius-md);padding:0.85rem 1.25rem;border:1px solid var(--border-subtle);margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
+            <div>
+              <span style="font-size:0.8rem;text-transform:uppercase;font-weight:700;color:var(--text-muted);">Assigned Dijkstra Route:</span>
+              <div style="font-family:monospace;font-size:0.85rem;font-weight:700;color:var(--color-forest-dark);margin-top:0.2rem;">
+                ${routeStr}
+              </div>
+            </div>
+            <a href="route.html?source=${activeDelivery.sourceNodeId || 'NODE-CENTRAL'}&destination=${activeDelivery.destinationNodeId || 'NODE-SHELTER-NORTH'}" class="btn btn-outline btn-sm">
+              Open Live Route Visualizer 🗺️
+            </a>
+          </div>
+
+          <!-- Action Buttons -->
+          <div style="display:flex;gap:1rem;justify-content:flex-end;">
+            ${!isPickedUp ? `
+              <button onclick="markPickedUp('${activeDelivery.id}')" class="btn btn-secondary">
+                📦 Mark Food Picked Up
+              </button>
+            ` : `
+              <button onclick="openOtpModal()" class="btn btn-primary">
+                🔐 Complete Delivery with Recipient OTP
+              </button>
+            `}
+          </div>
+        </div>
+      `;
+    }
+
+    async function loadAvailableJobs() {
+      const container = document.getElementById('availableJobsList');
+      try {
+        const res = await API.getPendingDeliveries();
+        const pending = res.data || [];
+
+        if (pending.length === 0) {
+          container.innerHTML = `
+            <div style="text-align:center;padding:2.5rem;color:var(--text-muted);">
+              <div style="font-size:2rem;margin-bottom:0.5rem;">🎉</div>
+              <strong>No pending delivery requests right now!</strong> All claimed donations have been assigned.
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = pending.map(d => {
+          const driverCapacity = myDriverProfile?.vehicle?.capacityKg || 0;
+          const isCapacityFit = driverCapacity >= d.quantity;
+
+          return `
+            <div style="background:#fff;border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:1.25rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;box-shadow:var(--shadow-sm);">
+              <div>
+                <span class="badge badge-available">Ready for Volunteer Pickup</span>
+                <h4 style="font-size:1.15rem;color:var(--color-forest-dark);margin-top:0.35rem;">
+                  ${d.foodName} (${d.quantity} ${d.unit})
+                </h4>
+                <div style="font-size:0.85rem;color:var(--text-muted);margin-top:0.25rem;">
+                  From <strong>${d.donorName}</strong> ➔ To <strong>${d.recipientName}</strong>
+                </div>
+                <div style="font-size:0.8rem;color:var(--text-light);margin-top:0.2rem;">
+                  Pickup: ${d.pickupAddress}
+                </div>
+              </div>
+
+              <div style="text-align:right;">
+                ${isCapacityFit ? `
+                  <button onclick="acceptDeliveryJob('${d.id}')" class="btn btn-primary btn-sm" ${activeDelivery ? 'disabled title="Complete current delivery first"' : ''}>
+                    Accept Delivery 🚚
+                  </button>
+                ` : `
+                  <div style="font-size:0.8rem;color:#c62828;font-weight:600;">
+                    ⚠️ Needs ${d.quantity} kg (Your vehicle: ${driverCapacity} kg)
+                  </div>
+                `}
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (e) {
+        container.innerHTML = '<div style="color:var(--text-muted);">Failed to load delivery opportunities.</div>';
+      }
+    }
+
+    async function acceptDeliveryJob(deliveryId) {
+      if (activeDelivery) {
+        showToast('You already have an active delivery in progress. Complete it first.', true);
+        return;
+      }
+
+      try {
+        const res = await API.acceptDelivery(deliveryId);
+        if (res.success) {
+          showToast('Delivery accepted! Route calculated via Dijkstra algorithm.', false);
+          loadVolunteerData();
+        }
+      } catch (err) {
+        showToast(err.message || 'Cannot accept delivery', true);
+      }
+    }
+
+    async function markPickedUp(deliveryId) {
+      try {
+        const res = await API.updateDeliveryStatus(deliveryId, 'PICKED_UP');
+        if (res.success) {
+          showToast('Food collected! En route to recipient.', false);
+          loadVolunteerData();
+        }
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    }
+
+    function openOtpModal() {
+      document.getElementById('otpModal').classList.add('active');
+    }
+
+    function closeOtpModal() {
+      document.getElementById('otpModal').classList.remove('active');
+      document.getElementById('verifyOtpInput').value = '';
+    }
+
+    document.getElementById('otpVerifyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!activeDelivery) return;
+
+      const otp = document.getElementById('verifyOtpInput').value.trim();
+      const btn = document.getElementById('submitOtpBtn');
+      btn.disabled = true;
+      btn.textContent = 'Verifying Handover Token...';
+
+      try {
+        const res = await API.verifyHandoverOtp(activeDelivery.id, otp);
+        if (res.success) {
+          showToast('🎉 Handover OTP verified! Delivery completed successfully.', false);
+          closeOtpModal();
+          loadVolunteerData();
+        }
+      } catch (err) {
+        showToast(err.message || 'Invalid OTP', true);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Verify & Complete Delivery ✅';
+      }
+    });
+
+    function openVehicleProfileModal() {
+      if (myDriverProfile && myDriverProfile.vehicle) {
+        document.getElementById('editVehicleType').value = myDriverProfile.vehicle.type;
+        document.getElementById('editVehicleReg').value = myDriverProfile.vehicle.registrationNumber;
+        document.getElementById('editVehicleCap').value = myDriverProfile.vehicle.capacityKg;
+        document.getElementById('editRadius').value = myDriverProfile.operatingRadiusKm;
+        document.getElementById('editLocation').value = myDriverProfile.currentOperatingLocation;
+      }
+      document.getElementById('vehicleModal').classList.add('active');
+    }
+
+    function closeVehicleModal() {
+      document.getElementById('vehicleModal').classList.remove('active');
+    }
+
+    document.getElementById('vehicleProfileForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('saveVehicleBtn');
+      btn.disabled = true;
+
+      const data = {
+        vehicleType: document.getElementById('editVehicleType').value,
+        registrationNumber: document.getElementById('editVehicleReg').value.trim(),
+        capacityKg: parseFloat(document.getElementById('editVehicleCap').value),
+        operatingRadiusKm: parseFloat(document.getElementById('editRadius').value),
+        currentOperatingLocation: document.getElementById('editLocation').value.trim()
+      };
+
+      try {
+        const res = await API.registerVehicle(data);
+        if (res.success) {
+          showToast('Vehicle profile updated!', false);
+          closeVehicleModal();
+          loadVolunteerData();
+        }
+      } catch (err) {
+        showToast(err.message, true);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

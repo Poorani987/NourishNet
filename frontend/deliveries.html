@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deliveries & Route Coordination — NourishNet</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <!-- Demo Switcher -->
+  <div id="demoQuickSwitcher"></div>
+
+  <!-- Header -->
+  <header class="site-navbar">
+    <div class="navbar-inner">
+      <a href="index.html" class="brand-link">
+        <div class="brand-icon">🌱</div>
+        <div class="brand-text">
+          <h1>NourishNet</h1>
+          <span>Deliveries & Routing</span>
+        </div>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="donations.html" class="nav-link">Find Food</a></li>
+        <li><a href="deliveries.html" class="nav-link active">Deliveries</a></li>
+        <li><a href="route.html" class="nav-link">Route Calculator</a></li>
+      </ul>
+
+      <div class="nav-actions" id="navUserControls"></div>
+    </div>
+  </header>
+
+  <main class="dashboard-wrapper">
+    <div class="dashboard-header">
+      <div class="dashboard-title-area">
+        <h2>🚚 Live Delivery Tracking & Road Routing</h2>
+        <p>Monitor live redistribution deliveries, volunteer assignments, transport policies, and Dijkstra shortest road networks.</p>
+      </div>
+
+      <div class="dashboard-actions">
+        <select id="deliveryStatusFilter" class="filter-select">
+          <option value="">All Delivery Statuses</option>
+          <option value="PENDING_ACCEPTANCE">Pending Driver Acceptance</option>
+          <option value="ASSIGNED">Assigned (Ready for Pickup)</option>
+          <option value="PICKED_UP">Picked Up (In Transit)</option>
+          <option value="DELIVERED">Delivered (Handover Verified)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Deliveries List -->
+    <div id="deliveriesList">
+      <div style="text-align:center;padding:3rem;color:var(--text-muted);">Loading deliveries...</div>
+    </div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/deliveries.js"></script>
+</body>
+</html>

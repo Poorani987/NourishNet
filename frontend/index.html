@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="NourishNet — Smart Food Redistribution and Waste Management System connecting donors, recipients, and volunteer drivers using Dijkstra shortest-path road routing.">
+  <title>NourishNet — Smart Food Redistribution & Waste Management System</title>
+  
+  <!-- Modern Typography from Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <!-- Demo 1-Click Role Switcher Bar -->
+  <div id="demoQuickSwitcher"></div>
+
+  <!-- Global Header Navigation -->
+  <header class="site-navbar">
+    <div class="navbar-inner">
+      <a href="index.html" class="brand-link">
+        <div class="brand-icon">🌱</div>
+        <div class="brand-text">
+          <h1>NourishNet</h1>
+          <span>Smart Food Redistribution</span>
+        </div>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link active">Home</a></li>
+        <li><a href="donations.html" class="nav-link">Find Food</a></li>
+        <li><a href="deliveries.html" class="nav-link">Deliveries</a></li>
+        <li><a href="route.html" class="nav-link">Route Calculator</a></li>
+        <li><a href="#howItWorks" class="nav-link">How It Works</a></li>
+        <li><a href="#impact" class="nav-link">Impact</a></li>
+      </ul>
+
+      <div class="nav-actions" id="navUserControls">
+        <a href="login.html" class="btn btn-outline btn-sm">Sign In</a>
+        <a href="register.html" class="btn btn-primary btn-sm">Get Started</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main>
+    <section class="hero-section">
+      <div class="hero-text-content">
+        <div class="hero-tag">
+          <span>✨ Intelligently Connecting Surpluses to Need</span>
+        </div>
+        <h1 class="hero-title">
+          Good Food Deserves a <span>Better Destination.</span>
+        </h1>
+        <p class="hero-subtitle">
+          NourishNet empowers restaurants, hotels, hostels, and universities to seamlessly channel surplus meals to shelters, NGOs, and community kitchens before they expire. Powered by algorithmic Dijkstra road routing and verified handover workflows.
+        </p>
+
+        <div class="hero-cta-group">
+          <a href="donor-dashboard.html" class="btn btn-primary btn-lg">
+            <span>🍲</span> Donate Food
+          </a>
+          <a href="donations.html" class="btn btn-secondary btn-lg">
+            <span>🔍</span> Find Food
+          </a>
+          <a href="register.html?role=VOLUNTEER" class="btn btn-outline btn-lg">
+            <span>🚚</span> Join as a Volunteer
+          </a>
+        </div>
+
+        <!-- Live Impact Summary derived from backend -->
+        <div class="hero-metrics">
+          <div class="metric-item">
+            <h4 id="statFoodDonated">240<span style="font-size:1.1rem;color:var(--color-green-emerald);"> kg</span></h4>
+            <p>Food Logged by Donors</p>
+          </div>
+          <div class="metric-item">
+            <h4 id="statFoodRedistributed">25<span style="font-size:1.1rem;color:var(--color-green-emerald);"> kg</span></h4>
+            <p>Delivered to Shelters</p>
+          </div>
+          <div class="metric-item">
+            <h4 id="statVolunteers">3</h4>
+            <p>Active Volunteer Drivers</p>
+          </div>
+        </div>
+        <div style="font-size:0.75rem;color:var(--text-light);margin-top:0.75rem;">
+          * Note: Values reflect in-memory demonstration records stored on the Spring Boot backend.
+        </div>
+      </div>
+
+      <!-- Hero Visual Card -->
+      <div class="hero-card-display">
+        <div class="hero-graphic-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+            <span class="badge badge-available">🟢 Live Redistribution</span>
+            <span style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">Sample Metro Grid</span>
+          </div>
+
+          <div style="background:#ffffff;border-radius:var(--radius-md);padding:1.25rem;border:1px solid var(--border-subtle);margin-bottom:1.25rem;">
+            <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">
+              <span style="font-size:1.6rem;">🍲</span>
+              <div>
+                <h4 style="font-size:1.05rem;color:var(--color-forest-dark);">Mixed Vegetable Biryani & Dal</h4>
+                <p style="font-size:0.8rem;color:var(--text-muted);">Green Bites Bistro ➔ Hope Haven Shelter</p>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;background:var(--color-pastel-tint);padding:0.6rem 0.85rem;border-radius:var(--radius-xs);">
+              <span><strong>Quantity:</strong> 45 kg</span>
+              <span style="color:var(--color-forest-main);font-weight:700;">Haversine: 4.2 km (Local)</span>
+            </div>
+          </div>
+
+          <div style="background:#ffffff;border-radius:var(--radius-md);padding:1.25rem;border:1px solid var(--border-subtle);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
+              <span style="font-size:0.82rem;font-weight:700;color:var(--color-forest-dark);">Dijkstra Shortest Route</span>
+              <span style="font-size:0.82rem;font-weight:700;color:var(--color-green-emerald);">5.4 km Total</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.78rem;font-family:monospace;color:var(--color-forest-dark);flex-wrap:wrap;">
+              <span style="background:var(--color-pastel-subtle);padding:0.2rem 0.5rem;border-radius:4px;">CENTRAL</span>
+              <span>➔</span>
+              <span style="background:var(--color-pastel-subtle);padding:0.2rem 0.5rem;border-radius:4px;">RESTAURANT-ROW</span>
+              <span>➔</span>
+              <span style="background:var(--color-pastel-subtle);padding:0.2rem 0.5rem;border-radius:4px;">SHELTER-NORTH</span>
+            </div>
+          </div>
+
+          <div style="margin-top:1.25rem;text-align:center;">
+            <a href="route.html" class="btn btn-secondary btn-sm" style="width:100%;">
+              Open Interactive Route Calculator 🗺️
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="section-container" id="howItWorks">
+      <div class="section-header">
+        <span class="section-badge">Streamlined Process</span>
+        <h2 class="section-title">How NourishNet Works</h2>
+        <p class="section-subtitle">
+          A closed-loop, safe, and transparent workflow connecting generous donors with organizations serving people in need.
+        </p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <div class="step-icon">🍱</div>
+          <h3>Donor Lists Surplus</h3>
+          <p>Donors register surplus cooked meals or packaged food, specifying quantity, food safety consume-before deadlines, allergens, and storage requirements.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <div class="step-icon">🤝</div>
+          <h3>Recipient Claims Food</h3>
+          <p>Shelters and NGOs browse verified available batches and claim full or partial quantities. The system locks batches atomically to prevent duplicate allocations.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <div class="step-icon">🚚</div>
+          <h3>Volunteer Accepts & Routes</h3>
+          <p>Eligible volunteer drivers check vehicle capacity and accept delivery jobs. The system runs Dijkstra's algorithm to calculate the shortest road path.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">4</div>
+          <div class="step-icon">🔐</div>
+          <h3>Handover Verified via OTP</h3>
+          <p>Upon arrival, the recipient provides a secure 6-digit Handover OTP. The backend validates the code and safely marks the delivery as completed.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- System Features Section -->
+    <section class="section-container" style="background:#ffffff;border-top:1px solid var(--border-subtle);border-bottom:1px solid var(--border-subtle);" id="features">
+      <div class="section-header">
+        <span class="section-badge">Engineering Highlights</span>
+        <h2 class="section-title">Built with Intelligent Algorithms</h2>
+        <p class="section-subtitle">
+          Combining computer science fundamentals with social impact to eliminate food waste efficiently.
+        </p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-box">
+          <div class="feature-icon-wrapper">🗺️</div>
+          <div class="feature-content">
+            <h3>Dijkstra Road Routing</h3>
+            <p>Calculates the true shortest route over a weighted road junction graph using Java's PriorityQueue, avoiding traffic bottlenecks and reducing transit time for perishable meals.</p>
+          </div>
+        </div>
+
+        <div class="feature-box">
+          <div class="feature-icon-wrapper">📏</div>
+          <div class="feature-content">
+            <h3>Distance Transport Policy</h3>
+            <p>Uses Haversine spherical math to enforce business transport rules: trips &le; 15 km are matched with local volunteers, while longer distances notify recipients to coordinate dedicated transport.</p>
+          </div>
+        </div>
+
+        <div class="feature-box">
+          <div class="feature-icon-wrapper">⏰</div>
+          <div class="feature-content">
+            <h3>Strict Food Safety Lifecycles</h3>
+            <p>Automatic background checks prevent expired food from being claimed or delivered. Batches past their safe consumption window are responsibly diverted to organic recovery.</p>
+          </div>
+        </div>
+
+        <div class="feature-box">
+          <div class="feature-icon-wrapper">♻️</div>
+          <div class="feature-content">
+            <h3>Circular Food Waste Recovery</h3>
+            <p>Unclaimed or spoiled batches are systematically tracked for composting and biogas processing, ensuring zero organic waste reaches local landfills.</p>
+          </div>
+        </div>
+
+        <div class="feature-box">
+          <div class="feature-icon-wrapper">🔑</div>
+          <div class="feature-content">
+            <h3>OTP Handover Verification</h3>
+            <p>Eliminates lost or disputed deliveries. Food batches can only transition to DELIVERED status once the driver inputs the recipient's authenticated 6-digit handover token.</p>
+          </div>
+        </div>
+
+        <div class="feature-box">
+          <div class="feature-icon-wrapper">⚡</div>
+          <div class="feature-content">
+            <h3>Thread-Safe Architecture</h3>
+            <p>Backend synchronization guards against concurrent race conditions during partial allocation claims, ready for seamless migration to Supabase PostgreSQL.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Call to Action Banner -->
+    <section class="section-container" style="text-align:center;">
+      <div style="background:linear-gradient(135deg, var(--color-pastel-subtle), var(--color-pastel-mint));border-radius:var(--radius-xl);padding:3.5rem 2rem;border:1px solid rgba(45, 106, 79, 0.2);box-shadow:var(--shadow-md);max-width:960px;margin:0 auto;">
+        <h2 style="font-size:2.4rem;color:var(--color-forest-dark);margin-bottom:1rem;">Ready to Make an Impact?</h2>
+        <p style="color:var(--text-body);font-size:1.1rem;max-width:600px;margin:0 auto 2rem;">
+          Whether you have surplus banquet meals to share, a shelter to feed, or a vehicle ready to deliver, join the NourishNet network today.
+        </p>
+        <div style="display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;">
+          <a href="register.html" class="btn btn-primary btn-lg">Create Free Account</a>
+          <a href="login.html" class="btn btn-secondary btn-lg">Explore Demo Accounts</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <h2>🌱 NourishNet</h2>
+        <p>Smart Food Redistribution and Waste Management System connecting donors, recipients, and volunteer drivers with algorithmic road routing.</p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Navigation</h4>
+        <ul class="footer-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="donations.html">Find Food</a></li>
+          <li><a href="deliveries.html">Deliveries</a></li>
+          <li><a href="route.html">Route Visualizer</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Dashboards</h4>
+        <ul class="footer-links">
+          <li><a href="donor-dashboard.html">Donor Dashboard</a></li>
+          <li><a href="recipient-dashboard.html">Recipient Dashboard</a></li>
+          <li><a href="volunteer-dashboard.html">Volunteer Hub</a></li>
+          <li><a href="admin-dashboard.html">Admin Overview</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Demo Accounts</h4>
+        <ul class="footer-links" style="font-size:0.85rem;color:#a8c2b5;">
+          <li>👑 <strong>admin@nourishnet.org</strong> / admin123</li>
+          <li>🍲 <strong>greenbites@restaurant.com</strong> / donor123</li>
+          <li>🤝 <strong>hope.shelter@ngo.org</strong> / recip123</li>
+          <li>🚚 <strong>alex.driver@volunteer.org</strong> / volun123</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>&copy; 2026 NourishNet. Smart Food Redistribution & Waste Management System. All rights reserved.</div>
+      <div>Designed for 2nd-Year B.E. Computer Science Engineering Project Demonstration.</div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // Load live dashboard summary metrics from backend
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const res = await API.getDashboardSummary();
+        if (res.success && res.data) {
+          const d = res.data;
+          document.getElementById('statFoodDonated').innerHTML = `${d.totalFoodDonatedKg}<span style="font-size:1.1rem;color:var(--color-green-emerald);"> kg</span>`;
+          document.getElementById('statFoodRedistributed').innerHTML = `${d.totalFoodRedistributedKg}<span style="font-size:1.1rem;color:var(--color-green-emerald);"> kg</span>`;
+          document.getElementById('statVolunteers').textContent = d.registeredVolunteers;
+        }
+      } catch (e) {
+        console.log('Backend metric initialization pending:', e);
+      }
+    });
+  </script>
+</body>
+</html>

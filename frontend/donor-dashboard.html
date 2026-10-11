@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Donor Dashboard — NourishNet</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <!-- Demo Switcher -->
+  <div id="demoQuickSwitcher"></div>
+
+  <!-- Header -->
+  <header class="site-navbar">
+    <div class="navbar-inner">
+      <a href="index.html" class="brand-link">
+        <div class="brand-icon">🌱</div>
+        <div class="brand-text">
+          <h1>NourishNet</h1>
+          <span>Food Donor Portal</span>
+        </div>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="donor-dashboard.html" class="nav-link active">Donor Dashboard</a></li>
+        <li><a href="donations.html" class="nav-link">Marketplace</a></li>
+        <li><a href="deliveries.html" class="nav-link">Track Deliveries</a></li>
+        <li><a href="route.html" class="nav-link">Route Calculator</a></li>
+      </ul>
+
+      <div class="nav-actions" id="navUserControls"></div>
+    </div>
+  </header>
+
+  <!-- Dashboard Body -->
+  <main class="dashboard-wrapper">
+    <div class="dashboard-header">
+      <div class="dashboard-title-area">
+        <h2>🍲 Donor Management Portal</h2>
+        <p>Register surplus meals, inspect allocation progress, and track deliveries.</p>
+      </div>
+      <div class="dashboard-actions">
+        <button onclick="openNewDonationModal()" class="btn btn-primary">
+          <span>+</span> Register Surplus Donation
+        </button>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-card-header">
+          <span class="kpi-card-title">My Total Donations</span>
+          <div class="kpi-icon-pill">🍲</div>
+        </div>
+        <div class="kpi-value"><span id="kpiMyDonations">0</span></div>
+        <div class="kpi-desc">Registered surplus food batches</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-card-header">
+          <span class="kpi-card-title">Available Batches</span>
+          <div class="kpi-icon-pill" style="background:#e8f5e9;color:#1e7e34;">🟢</div>
+        </div>
+        <div class="kpi-value"><span id="kpiMyAvailable">0</span></div>
+        <div class="kpi-desc">Awaiting shelter claims</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-card-header">
+          <span class="kpi-card-title">Allocated Food</span>
+          <div class="kpi-icon-pill" style="background:#e3f2fd;color:#1565c0;">🤝</div>
+        </div>
+        <div class="kpi-value"><span id="kpiMyAllocated">0</span></div>
+        <div class="kpi-desc">Claimed by verified recipients</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-card-header">
+          <span class="kpi-card-title">Completed Deliveries</span>
+          <div class="kpi-icon-pill" style="background:#ede7f6;color:#5e35b1;">✅</div>
+        </div>
+        <div class="kpi-value"><span id="kpiMyCompleted">0</span></div>
+        <div class="kpi-desc">Delivered via volunteer network</div>
+      </div>
+    </div>
+
+    <!-- Active Recipient Demand Alerts -->
+    <div class="card" style="margin-bottom:2rem;background:linear-gradient(135deg, #ffffff, var(--color-pastel-tint));">
+      <div class="card-header">
+        <h3 class="card-title">📢 Urgent Recipient Demands in Your Area</h3>
+        <span style="font-size:0.8rem;color:var(--text-muted);">Real-time shelter requests</span>
+      </div>
+      <div id="donorDemandsFeed" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1rem;">
+        <div style="color:var(--text-muted);font-size:0.9rem;">Loading local food requests...</div>
+      </div>
+    </div>
+
+    <!-- My Donation Batches Table -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">📦 My Listed Food Batches</h3>
+        <button onclick="loadMyDonations()" class="btn btn-secondary btn-sm">Refresh List 🔄</button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Food Name</th>
+              <th>Category</th>
+              <th>Remaining / Total</th>
+              <th>Status</th>
+              <th>Consume Before</th>
+              <th>Pickup Address</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="myDonationsTableBody">
+            <tr>
+              <td colspan="7" style="text-align:center;padding:2rem;color:var(--text-muted);">
+                Loading your donation batches...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Register Donation Modal -->
+  <div class="modal-overlay" id="newDonationModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Register Surplus Food Batch</h3>
+        <button class="modal-close-btn" onclick="closeNewDonationModal()">&times;</button>
+      </div>
+
+      <form id="newDonationForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="foodName">Food Name / Description *</label>
+            <input type="text" id="foodName" class="form-control" placeholder="E.g., Mixed Veg Biryani, Fresh Sandwich Loaves" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="foodCategory">Category *</label>
+              <select id="foodCategory" class="form-control" required>
+                <option value="COOKED_MEALS">Cooked Meals</option>
+                <option value="PACKAGED_GOODS">Packaged Goods</option>
+                <option value="FRESH_PRODUCE">Fresh Produce</option>
+                <option value="BAKERY_ITEMS">Bakery Items</option>
+                <option value="DAIRY_PRODUCTS">Dairy Products</option>
+                <option value="GRAINS_AND_STAPLES">Grains & Staples</option>
+                <option value="OTHER">Other</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="foodQuantity">Quantity *</label>
+              <div style="display:flex;gap:0.5rem;">
+                <input type="number" id="foodQuantity" class="form-control" step="0.5" min="0.5" placeholder="25" required style="flex:2;">
+                <select id="foodUnit" class="form-control" required style="flex:1;">
+                  <option value="kg">kg</option>
+                  <option value="servings">servings</option>
+                  <option value="packets">packets</option>
+                  <option value="boxes">boxes</option>
+                  <option value="liters">liters</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Classification</label>
+              <div style="display:flex;gap:1rem;padding-top:0.35rem;">
+                <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer;">
+                  <input type="checkbox" id="foodVeg" checked> 🟢 Vegetarian
+                </label>
+                <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer;">
+                  <input type="checkbox" id="foodCooked" checked> ♨️ Cooked Food
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="hoursValid">Consume Before (Hours from now) *</label>
+              <input type="number" id="hoursValid" class="form-control" min="1" max="168" value="8" required>
+              <div style="font-size:0.75rem;color:var(--text-light);margin-top:0.25rem;">Must be strictly in future</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="foodAllergens">Allergen Information</label>
+            <input type="text" id="foodAllergens" class="form-control" placeholder="E.g., Contains dairy/nuts, Gluten-free">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="foodStorage">Storage Instructions</label>
+            <input type="text" id="foodStorage" class="form-control" placeholder="E.g., Keep warm in insulated crates, Refrigerate">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="pickupAddress">Pickup Address *</label>
+            <input type="text" id="pickupAddress" class="form-control" placeholder="Address for volunteer pickup" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="nearestNode">Nearest Road Network Junction (Dijkstra)</label>
+              <select id="nearestNode" class="form-control">
+                <option value="NODE-RESTAURANT-ROW">Green Valley Dining Strip (NODE-RESTAURANT-ROW)</option>
+                <option value="NODE-CENTRAL">Central Food Bank Hub (NODE-CENTRAL)</option>
+                <option value="NODE-MARKET-WEST">West Market Produce Center (NODE-MARKET-WEST)</option>
+                <option value="NODE-CAMPUS-EAST">East University Campus Hub (NODE-CAMPUS-EAST)</option>
+                <option value="NODE-JUNCTION-A">Crossroads Junction A (NODE-JUNCTION-A)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="additionalInstructions">Pickup Instructions</label>
+              <input type="text" id="additionalInstructions" class="form-control" placeholder="E.g., Use kitchen back service gate">
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeNewDonationModal()">Cancel</button>
+          <button type="submit" id="submitDonationBtn" class="btn btn-primary">Publish Surplus Batch ➔</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    let myBatches = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Ensure user is signed in
+      const user = Auth.getUser();
+      if (!user) {
+        showToast('Please sign in as a food donor.', true);
+        await Auth.quickLoginAs('DONOR');
+      }
+      loadMyDonations();
+      loadDemandAlerts();
+    });
+
+    async function loadMyDonations() {
+      const user = Auth.getUser();
+      if (!user) return;
+
+      const tbody = document.getElementById('myDonationsTableBody');
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;">🔄 Loading donations...</td></tr>';
+
+      try {
+        const res = await API.getDonationsByDonor(user.id);
+        myBatches = res.data || [];
+        renderMyDonations();
+        updateKpis();
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:2rem;color:#dc3545;">⚠️ ${err.message}</td></tr>`;
+      }
+    }
+
+    function renderMyDonations() {
+      const tbody = document.getElementById('myDonationsTableBody');
+      if (myBatches.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align:center;padding:3rem;">
+              <div style="font-size:2rem;margin-bottom:0.5rem;">🌱</div>
+              <strong>No donations posted yet.</strong> Click "+ Register Surplus Donation" above to list your first food batch!
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = myBatches.map(b => {
+        let badgeClass = 'badge-available';
+        if (b.status === 'PARTIALLY_ALLOCATED') badgeClass = 'badge-partially-allocated';
+        if (b.status === 'FULLY_ALLOCATED') badgeClass = 'badge-fully-allocated';
+        if (b.status === 'EXPIRED') badgeClass = 'badge-expired';
+        if (b.status === 'CANCELLED') badgeClass = 'badge-cancelled';
+
+        const deadline = new Date(b.consumeBefore).toLocaleString('en-US', {
+          month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+
+        const canCancel = b.status === 'AVAILABLE';
+
+        return `
+          <tr>
+            <td>
+              <strong>${b.foodName}</strong>
+              <div style="font-size:0.75rem;color:var(--text-muted);">${b.vegetarian ? '🟢 Veg' : '🔴 Non-Veg'} • ${b.cookedFood ? 'Cooked' : 'Packaged'}</div>
+            </td>
+            <td><span style="font-size:0.8rem;text-transform:uppercase;color:var(--text-muted);font-weight:600;">${b.category}</span></td>
+            <td><strong>${b.remainingQuantity}</strong> / ${b.originalQuantity} ${b.unit}</td>
+            <td><span class="badge ${badgeClass}">${b.status.replace('_', ' ')}</span></td>
+            <td>${deadline}</td>
+            <td style="max-width:200px;font-size:0.82rem;color:var(--text-muted);">${b.pickupAddress}</td>
+            <td>
+              ${canCancel ? `
+                <button onclick="cancelBatch('${b.id}')" class="btn btn-outline btn-sm" style="color:#c62828;border-color:#ffcdd2;">
+                  Cancel
+                </button>
+              ` : `
+                <span style="font-size:0.8rem;color:var(--text-light);">—</span>
+              `}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function updateKpis() {
+      document.getElementById('kpiMyDonations').textContent = myBatches.length;
+      document.getElementById('kpiMyAvailable').textContent = myBatches.filter(b => b.status === 'AVAILABLE' || b.status === 'PARTIALLY_ALLOCATED').length;
+      document.getElementById('kpiMyAllocated').textContent = myBatches.filter(b => b.status === 'FULLY_ALLOCATED' || b.status === 'PARTIALLY_ALLOCATED').length;
+      // Fetch deliveries to donor
+      API.getAllDeliveries({ donorId: Auth.getUser()?.id }).then(res => {
+        const delivs = res.data || [];
+        document.getElementById('kpiMyCompleted').textContent = delivs.filter(d => d.status === 'DELIVERED').length;
+      }).catch(() => {});
+    }
+
+    async function loadDemandAlerts() {
+      const feed = document.getElementById('donorDemandsFeed');
+      try {
+        const res = await API.getAllDemands('OPEN');
+        const demands = res.data || [];
+        if (demands.length === 0) {
+          feed.innerHTML = '<div style="color:var(--text-muted);font-size:0.88rem;">No open shelter demands right now.</div>';
+          return;
+        }
+
+        feed.innerHTML = demands.slice(0, 3).map(d => `
+          <div style="background:#fff;border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:0.85rem;box-shadow:var(--shadow-sm);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.35rem;">
+              <span style="font-size:0.75rem;font-weight:700;color:${d.urgency === 'CRITICAL' ? '#c62828' : '#b45309'};background:${d.urgency === 'CRITICAL' ? '#ffebee' : '#fef3c7'};padding:0.15rem 0.5rem;border-radius:var(--radius-pill);">
+                ${d.urgency} URGENCY
+              </span>
+              <span style="font-size:0.78rem;color:var(--text-muted);">${d.requiredQuantity} ${d.unit}</span>
+            </div>
+            <strong style="color:var(--color-forest-dark);font-size:0.95rem;">${d.category.replace('_', ' ')}</strong>
+            <p style="font-size:0.82rem;color:var(--text-muted);margin-top:0.25rem;">${d.notes || 'Needed by shelter'}</p>
+            <div style="font-size:0.78rem;color:var(--color-forest-main);margin-top:0.4rem;">📍 ${d.recipientName} (${d.location})</div>
+          </div>
+        `).join('');
+      } catch (e) {
+        feed.innerHTML = '<div style="color:var(--text-muted);font-size:0.88rem;">Unable to load demand feed.</div>';
+      }
+    }
+
+    function openNewDonationModal() {
+      const user = Auth.getUser();
+      if (user && user.address) {
+        document.getElementById('pickupAddress').value = user.address;
+      }
+      document.getElementById('newDonationModal').classList.add('active');
+    }
+
+    function closeNewDonationModal() {
+      document.getElementById('newDonationModal').classList.remove('active');
+      document.getElementById('newDonationForm').reset();
+    }
+
+    document.getElementById('newDonationForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const user = Auth.getUser();
+      if (!user) return;
+
+      const btn = document.getElementById('submitDonationBtn');
+      btn.disabled = true;
+      btn.textContent = 'Publishing to backend...';
+
+      const hours = parseFloat(document.getElementById('hoursValid').value) || 8;
+      const consumeBefore = new Date(Date.now() + hours * 3600 * 1000).toISOString();
+
+      const donationData = {
+        foodName: document.getElementById('foodName').value.trim(),
+        category: document.getElementById('foodCategory').value,
+        quantity: parseFloat(document.getElementById('foodQuantity').value),
+        unit: document.getElementById('foodUnit').value,
+        vegetarian: document.getElementById('foodVeg').checked,
+        cookedFood: document.getElementById('foodCooked').checked,
+        preparationTime: new Date(Date.now() - 3600 * 1000).toISOString(),
+        consumeBefore: consumeBefore,
+        allergenInfo: document.getElementById('foodAllergens').value.trim(),
+        storageRequirements: document.getElementById('foodStorage').value.trim(),
+        pickupAddress: document.getElementById('pickupAddress').value.trim(),
+        pickupLatitude: user.latitude || 13.0910,
+        pickupLongitude: user.longitude || 80.2640,
+        nearestNodeId: document.getElementById('nearestNode').value,
+        additionalInstructions: document.getElementById('additionalInstructions').value.trim()
+      };
+
+      try {
+        const res = await API.createDonation(donationData);
+        if (res.success) {
+          showToast(`Surplus food batch "${donationData.foodName}" registered successfully!`, false);
+          closeNewDonationModal();
+          loadMyDonations();
+        } else {
+          throw new Error(res.message);
+        }
+      } catch (err) {
+        showToast(err.message || 'Failed to register donation', true);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Publish Surplus Batch ➔';
+      }
+    });
+
+    async function cancelBatch(id) {
+      if (!confirm('Are you sure you want to cancel this unallocated donation batch?')) return;
+      try {
+        const res = await API.cancelDonation(id);
+        if (res.success) {
+          showToast('Donation cancelled.', false);
+          loadMyDonations();
+        }
+      } catch (err) {
+        showToast(err.message || 'Cannot cancel donation', true);
+      }
+    }
+  </script>
+</body>
+</html>

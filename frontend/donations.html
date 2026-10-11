@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Food Marketplace & Donations — NourishNet</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <!-- Demo Switcher -->
+  <div id="demoQuickSwitcher"></div>
+
+  <!-- Header -->
+  <header class="site-navbar">
+    <div class="navbar-inner">
+      <a href="index.html" class="brand-link">
+        <div class="brand-icon">🌱</div>
+        <div class="brand-text">
+          <h1>NourishNet</h1>
+          <span>Food Discovery Marketplace</span>
+        </div>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="donations.html" class="nav-link active">Find Food</a></li>
+        <li><a href="deliveries.html" class="nav-link">Deliveries</a></li>
+        <li><a href="route.html" class="nav-link">Route Calculator</a></li>
+      </ul>
+
+      <div class="nav-actions" id="navUserControls"></div>
+    </div>
+  </header>
+
+  <main class="dashboard-wrapper">
+    <div class="dashboard-header">
+      <div class="dashboard-title-area">
+        <h2>🍲 Available Food Donations Marketplace</h2>
+        <p>Explore surplus batches listed by restaurants, institutions, and bakeries. Verified food safety checks applied in real time.</p>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <div class="filter-group">
+        <input type="text" id="searchInput" class="filter-input" placeholder="🔍 Search food or location..." style="min-width:240px;">
+        
+        <select id="categoryFilter" class="filter-select">
+          <option value="">All Categories</option>
+          <option value="COOKED_MEALS">Cooked Meals</option>
+          <option value="PACKAGED_GOODS">Packaged Goods</option>
+          <option value="FRESH_PRODUCE">Fresh Produce</option>
+          <option value="BAKERY_ITEMS">Bakery Items</option>
+          <option value="DAIRY_PRODUCTS">Dairy Products</option>
+          <option value="GRAINS_AND_STAPLES">Grains & Staples</option>
+        </select>
+
+        <select id="vegFilter" class="filter-select">
+          <option value="">Veg & Non-Veg</option>
+          <option value="true">🟢 Vegetarian Only</option>
+          <option value="false">🔴 Non-Veg Only</option>
+        </select>
+      </div>
+
+      <button onclick="DonationsApp.resetFilters()" class="btn btn-outline btn-sm">Reset Filters</button>
+    </div>
+
+    <!-- Donations Grid -->
+    <div id="donationsList" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(320px, 1fr));gap:1.5rem;">
+      <div style="text-align:center;padding:3rem;grid-column:1/-1;">Loading available batches...</div>
+    </div>
+  </main>
+
+  <!-- Claim Modal -->
+  <div class="modal-overlay" id="claimModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Claim Food Donation</h3>
+        <button class="modal-close-btn" onclick="DonationsApp.closeClaimModal()">&times;</button>
+      </div>
+      <form id="claimForm">
+        <div class="modal-body">
+          <div style="background:var(--color-pastel-tint);border-radius:var(--radius-md);padding:1rem;margin-bottom:1.25rem;">
+            <div style="font-size:0.8rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;">Selected Batch</div>
+            <h4 id="claimBatchName" style="color:var(--color-forest-dark);font-size:1.2rem;margin:0.25rem 0;">—</h4>
+            <div style="font-size:0.85rem;color:var(--text-muted);">
+              Donor: <strong id="claimBatchDonor">—</strong> • Total Available: <strong id="claimBatchRemaining" style="color:var(--color-forest-dark);">—</strong>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="claimQuantityInput">Claim Quantity (<span id="claimUnitLabel">kg</span>) *</label>
+            <input type="number" id="claimQuantityInput" class="form-control" step="0.5" min="0.5" required>
+            <div style="font-size:0.78rem;color:var(--text-muted);margin-top:0.25rem;">
+              * Partial claims supported. Enter any amount up to available quantity.
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="claimDeliveryAddress">Recipient Delivery / Dropoff Address *</label>
+            <textarea id="claimDeliveryAddress" class="form-control" rows="2" placeholder="Shelter street address, drop gate..." required></textarea>
+          </div>
+
+          <div style="background:#e8f5e9;padding:0.75rem 1rem;border-radius:var(--radius-sm);border:1px solid #c8e6c9;font-size:0.82rem;color:#1b5e20;">
+            🚚 <strong>Transport Coordination:</strong> NourishNet calculates Haversine distance. If &le; 15 km, a registered volunteer driver will be automatically matched.
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="DonationsApp.closeClaimModal()">Cancel</button>
+          <button type="submit" id="submitClaimBtn" class="btn btn-primary">Confirm Allocation ➔</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/donations.js"></script>
+</body>
+</html>
